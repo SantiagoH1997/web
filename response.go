@@ -49,7 +49,7 @@ func RespondError(ctx context.Context, w http.ResponseWriter, err error) error {
 			Error:  webErr.Err.Error(),
 			Fields: webErr.Fields,
 		}
-		if err := RespondJSON(ctx, w, er, webErr.StatusCode); err != nil {
+		if err := RespondJSON(ctx, w, er, webErr.Status); err != nil {
 			return err
 		}
 		return nil

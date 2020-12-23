@@ -1,34 +1,39 @@
 package web
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
-// Error represents a generic error.
-type Error struct {
-	Err        error
-	StatusCode int
-	Fields     []ErrorField
-}
-
-// ErrorResponse represents the error
-// to be sent to the client.
-type ErrorResponse struct {
-	Error  string       `json:"error"`
-	Fields []ErrorField `json:"fields,omitempty"`
-}
-
-// ErrorField represents a field that failed validation.
-type ErrorField struct {
+// FieldError is used to indicate an error with a specific request field.
+type FieldError struct {
 	Field string `json:"field"`
 	Error string `json:"error"`
 }
 
-func (re *Error) Error() string {
-	return re.Err.Error()
+// ErrorResponse is the form used for API responses from failures in the API.
+type ErrorResponse struct {
+	Error  string       `json:"error"`
+	Fields []FieldError `json:"fields,omitempty"`
 }
 
-// NewError returns an error with an HTTP status code.
-func NewError(err error, statusCode int) error {
-	return &Error{err, statusCode, nil}
+// Error is used to pass an error during the request through the
+// application with web specific context.
+type Error struct {
+	Err    error
+	Status int
+	Fields []FieldError
+}
+
+// NewRequestError wraps a provided error with an HTTP status code. This
+// function should be used when handlers encounter expected errors.
+func NewRequestError(err error, status int) error {
+	return &Error{err, status, nil}
+}
+
+// Error implements the error interface. It uses the default message of the
+// wrapped error. This is what will be shown in the services' logs.
+func (err *Error) Error() string {
+	return err.Err.Error()
 }
 
 // shutdown is a type used to help with the graceful termination of the service.
@@ -40,12 +45,6 @@ type shutdown struct {
 // a graceful shutdown.
 func NewShutdownError(message string) error {
 	return &shutdown{message}
-}
-
-// NewRequestError wraps a provided error with an HTTP status code. This
-// function should be used when handlers encounter expected errors.
-func NewRequestError(err error, status int) error {
-	return &Error{err, status, nil}
 }
 
 // Error is the implementation of the error interface.

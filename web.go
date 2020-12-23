@@ -68,11 +68,6 @@ func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.otmux.ServeHTTP(w, r)
 }
 
-// Params returns the web call parameters from the request.
-func Params(r *http.Request) map[string]string {
-	return mux.Vars(r)
-}
-
 // HandleDebug sets a handler function for a given HTTP method and path pair
 // to the default http package server mux. /debug is added to the path.
 func (a *App) HandleDebug(method string, path string, handler Handler, mw ...Middleware) {
